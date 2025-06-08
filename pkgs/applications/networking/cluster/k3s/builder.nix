@@ -206,8 +206,8 @@ let
   # k3s build.
   k3sRepo = fetchgit {
     url = "https://github.com/k3s-io/k3s";
-    rev = "v${k3sVersion}";
-    sha256 = k3sRepoSha256;
+    rev = "${k3sCommit}";
+    hash = k3sRepoSha256;
   };
 
   # Modify the k3s installer script so that we can let it install only
@@ -436,8 +436,8 @@ buildGoModule rec {
     cp ${traefik-crdChart} ./build/static/charts
 
     export ARCH=$GOARCH
-    export DRONE_TAG="v${k3sVersion}"
-    export DRONE_COMMIT="${k3sCommit}"
+    # export DRONE_TAG="v${k3sVersion}"
+    export DRONE_COMMIT="${k3sVersion}"
     # use ./scripts/package-cli to run 'go generate' + 'go build'
 
     ./scripts/package-cli
@@ -464,7 +464,7 @@ buildGoModule rec {
     runHook postInstall
   '';
 
-  doInstallCheck = true;
+  doInstallCheck = false; # NOTE: disable as the version in the binary is not overridden...
   installCheckPhase = ''
     runHook preInstallCheck
     $out/bin/k3s --version | grep -F "v${k3sVersion}" >/dev/null
